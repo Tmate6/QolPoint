@@ -24,3 +24,6 @@ There are 3 types of buttons you can add. They can be added from the upper right
 	- Normal buttons (commands hardcoded) > Shortcut icon
 	- Folders  > Folder icon
 	- Shortcuts (can open any file/app) > Plus icon
+
+**--- Editing Buttons ---**
+

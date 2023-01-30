@@ -80,7 +80,6 @@ func getScreenWithMouse() -> NSScreen? {
 }
 
 
-@available(macOS 13.0, *)
 @main
 struct QolApp: App {
     @StateObject private var appState = AppState()
@@ -99,7 +98,6 @@ struct QolApp: App {
                     screen: screen)
         }
         .windowStyle(.hiddenTitleBar)
-        .windowResizability(.contentSize)
         .commands {
             CommandGroup(replacing: .appSettings) {
                 Button("Settings...") { windowContent = .setup }

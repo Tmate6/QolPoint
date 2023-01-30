@@ -392,20 +392,24 @@ struct fileCreateView: View {
                     
                     TextField(String(path), text: $input)
                         .padding(.trailing, 1.0)
-                        .onSubmit {
-                            if errorRetruned {
-                                FileManager.default.createFile(atPath: path + input, contents: nil)
-                                NSWorkspace.shared.open(URL(fileURLWithPath: path + input))
-                                currWinState = .main
-                                NSApp.hide(nil)
-                            }
-                            else {
-                                FileManager.default.createFile(atPath: path.dropLast() + input, contents: nil)
-                                NSWorkspace.shared.open(URL(fileURLWithPath: path.dropLast() + input))
-                                currWinState = .main
-                                NSApp.hide(nil)
-                            }
+                    
+                    GroupBox {
+                        Text("Create")
+                    }
+                    .onTapGesture {
+                        if errorRetruned {
+                            FileManager.default.createFile(atPath: path + input, contents: nil)
+                            NSWorkspace.shared.open(URL(fileURLWithPath: path + input))
+                            currWinState = .main
+                            NSApp.hide(nil)
                         }
+                        else {
+                            FileManager.default.createFile(atPath: path.dropLast() + input, contents: nil)
+                            NSWorkspace.shared.open(URL(fileURLWithPath: path.dropLast() + input))
+                            currWinState = .main
+                            NSApp.hide(nil)
+                        }
+                    }
                 }
             }
             .padding(.all, 10.0)
@@ -661,7 +665,6 @@ struct setupView: View {
                             selectBtnView(buttons: $buttons, currSelectedSlide: buttonSlides.firstIndex(of: buttons)!)
                         }
                     }
-                    .background(BackgroundStyle())
                 }
             }
         }
@@ -695,7 +698,6 @@ struct mainSettingsView: View {
             HStack {
                 KeyboardShortcuts.Recorder("", name: .toggleShortcut)
                     .controlSize(/*@START_MENU_TOKEN@*/.large/*@END_MENU_TOKEN@*/)
-                    .background(BackgroundStyle())
             }
             Divider()
             GroupBox {
@@ -915,13 +917,15 @@ struct selectBtnView: View {
                                         .font(.title)
                                         .padding([.leading, .bottom, .trailing], 3.0)
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                                        .onSubmit {
-                                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                                            buttons[currSelectedButton].text = selectedText
-                                            buttonSlides[currSelectedSlide] = buttons
-                                        }
-                                    Text("Press enter to save name")
-                                        .padding(.bottom, 3.0)
+                                    
+                                    GroupBox {
+                                        Text("Save name")
+                                    }
+                                    .onTapGesture {
+                                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                                        buttons[currSelectedButton].text = selectedText
+                                        buttonSlides[currSelectedSlide] = buttons
+                                    }
                                 }
                                 GroupBox {
                                     Text("Edit Items")
@@ -1060,13 +1064,14 @@ struct ShortcutSelectHelperView: View {
                         .font(.title)
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .onSubmit {
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                            buttons[currSelectedButton].text = selectedText
-                            buttonSlides[currSelectedSlide] = buttons
-                        }
-                    Text("Press enter to save name")
-                        .padding(.bottom, 3.0)
+                    GroupBox {
+                        Text("Save name")
+                    }
+                    .onTapGesture {
+                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                        buttons[currSelectedButton].text = selectedText
+                        buttonSlides[currSelectedSlide] = buttons
+                    }
                 }
                 
                 GroupBox {

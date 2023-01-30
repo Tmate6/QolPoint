@@ -7,26 +7,20 @@ By Mate Tohai
 HOW TO USE:
   Click on Setting when first opening app, or from the menubar go QolPoint > Settings
 	
---- Main Settings ---
+**--- Main Settings ---**
 	
 Set keybind for showing/hiding app in:
+
 	Main Settings > Main Shortcut
 	
 Reset all buttons and saves through:
+
 	Main Settings > Reset Buttons > Confirm Reset
 		
---- Button Settings ---
+**--- Button Settings ---**
 
-There are 3 types of buttons you can add:
-	- Normal buttons (commands hardcoded)
-	- Folders
-	- Shortcuts (can open any file/app)
-	
-To add the buttons, go to:
-	Manage buttons
+There are 3 types of buttons you can add. They can be added from the upper right corner on the **manage buttons** screen.
 
-Then select the desired type button from the upper right corner (Types are listed in order)
-	 - Shortcut buttons > Shortcut icon
-	 - Folder buttons > Folder icon
-	 - Normal buttons > Plus icon
-	
+	- Normal buttons (commands hardcoded) > Shortcut icon
+	- Folders  > Folder icon
+	- Shortcuts (can open any file/app) > Plus icon

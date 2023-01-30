@@ -27,3 +27,6 @@ There are 3 types of buttons you can add. They can be added from the upper right
 
 **--- Editing Buttons ---**
 
+Editing options for buttons are displayed below the button row preview.
+
+**--- Normal button options ---**

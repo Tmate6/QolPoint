@@ -1,7 +1,5 @@
 -----------
-QolPoint
-A quality of life mac app
-By Mate Tohai
+QolPoint - A quality of life mac app
 -----------
 
 HOW TO USE:

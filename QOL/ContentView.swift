@@ -24,6 +24,7 @@ enum btnType: Int {
     case popup = 2
     case window = 3
     case shortcut = 4
+    case custom = 5
 }
 
 
@@ -124,31 +125,36 @@ func commandAction(id: Int) {
 
 func loadBtns() -> [[button]] {
     noOfSlides = 0
-    UserDefaults.standard.register(defaults: ["defaultButtons" : "13:"])
+    UserDefaults.standard.register(defaults: ["defaultButtons" : "13:::"])
     
     var buttonReturn: [[button]] = [[]]
     print(UserDefaults.standard.string(forKey: "defaultButtons")!)
-    for array in UserDefaults.standard.string(forKey: "defaultButtons")!.components(separatedBy: ":") {
+    for array in UserDefaults.standard.string(forKey: "defaultButtons")!.components(separatedBy: ":::") {
         if array == "" { print("e"); continue }
         noOfSlides += 1
         var itemNo: Int = 0
         var returnSlide: [button] = []
         
-        for item in array.components(separatedBy: ",") {
+        for item in array.components(separatedBy: ",,,") {
             
             if item == "" { continue }
             
-            if item.contains("*") {
-                let itemInfoTransition = item.components(separatedBy: ";")
-                let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "*")
-                print(itemInfo)
-                print(itemInfo)
+            if item.contains("***") {
+                let itemInfoTransition = item.components(separatedBy: ";;;")
+                let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "***")
                 print(itemInfo)
                 returnSlide.append(button(no: Int(itemInfoTransition[0].dropLast())!, type: .shortcut, text: itemInfo[0], image: "link", about: "Opens a set path", info: itemInfo[1]))
             }
             
-            else if item.contains(";") {
-                let itemInfo = item.components(separatedBy: ";")
+            if item.contains("///") {
+                let itemInfoTransition = item.components(separatedBy: ";;;")
+                let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "///")
+                print(itemInfo)
+                returnSlide.append(button(no: Int(itemInfoTransition[0].dropLast())!, type: .custom, text: itemInfo[0], image: "terminal", about: "Executes a custom command", info: itemInfo[1]))
+            }
+            
+            else if item.contains(";;;") {
+                let itemInfo = item.components(separatedBy: ";;;")
                 returnSlide.append(button(no: Int(itemInfo[0].dropLast())!, type: .folder, text: itemInfo[1], image: "folder", about: nil))
             }
             
@@ -327,6 +333,11 @@ struct mainView: View {
                                     }
                                     optionInfo.removeLast()
                                     let _ = shell("open " + (optionInfo))
+                                    NSApp.hide(nil)
+                                }
+                                
+                                else if option.type == .custom {
+                                    print(shell(option.info ?? ""))
                                     NSApp.hide(nil)
                                 }
                             }
@@ -514,6 +525,8 @@ struct getTextView: View {
     }
 }
 
+// buttons save to memory when back button is pressde here //
+
 struct setupView: View {
     @Binding var currWinState: windowState
     @Binding var buttons: [button]
@@ -550,7 +563,7 @@ struct setupView: View {
                                         backImage = "arrowtriangle.backward"
                                     }
                                 }
-                            }
+                            } // Saving //
                             .onTapGesture {
                                 buttons = buttonSlides[0]
                                 let defaults = UserDefaults.standard
@@ -560,15 +573,19 @@ struct setupView: View {
                                     for item in array {
                                         buttonsSave += String(item.no) + String(item.type.rawValue)
                                         if item.type == .folder {
-                                            buttonsSave += ";" + String(item.text)
+                                            buttonsSave += ";;;" + String(item.text)
                                         }
                                         if item.type == .shortcut {
-                                            buttonsSave += ";" + String(item.text)
-                                            buttonsSave += "*" + String(item.info!)
+                                            buttonsSave += ";;;" + String(item.text)
+                                            buttonsSave += "***" + String(item.info!)
                                         }
-                                        buttonsSave += ","
+                                        if item.type == .custom {
+                                            buttonsSave += ";;;" + String(item.text)
+                                            buttonsSave += "///" + String(item.info!)
+                                        }
+                                        buttonsSave += ",,,"
                                     }
-                                    buttonsSave += ":"
+                                    buttonsSave += ":::"
                                 }
                                 
                                 print(buttonsSave)
@@ -673,7 +690,7 @@ struct setupView: View {
 }
 
 
-// setup views //
+// setup helper views //
 
 struct mainSettingsView: View {
     @Binding var buttons: [button]
@@ -707,7 +724,7 @@ struct mainSettingsView: View {
                 if !resetConfirmation {
                     resetConfirmation = true
                 } else {
-                    UserDefaults.standard.set("13:", forKey: "defaultButtons")
+                    UserDefaults.standard.set("13:::", forKey: "defaultButtons")
                     buttonSlides = loadBtns()
                     buttons = buttonSlides[0]
                     resetConfirmation = false
@@ -754,6 +771,28 @@ struct selectBtnView: View {
                 }
                 
                 Spacer()
+                
+                GroupBox {
+                    Image(systemName: "terminal")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 15)
+                }
+                .onTapGesture {
+                    var customBtnNo: Int = 1
+                    for button in buttons {
+                        if button.type == .custom {
+                            customBtnNo += 1
+                        }
+                    }
+                    buttons.append(button(no: customBtnNo, type: .custom, text: "Custom", image: "terminal", about: "Executes a custom command"))
+                    buttonSlides[currSelectedSlide] = buttons
+                    selectedobjectNo = String(customBtnNo) + "5"
+                    selectedText = "Custom"
+                }
+                .padding(.bottom, -4.0)
+                .padding(.top, -1.0)
+                .padding(.trailing, -2.0)
                 
                 GroupBox {
                     Image(systemName: "link.badge.plus")
@@ -942,6 +981,9 @@ struct selectBtnView: View {
                     else if selectedobjectNo.last == "4"  {
                         ShortcutSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
                     }
+                    else if selectedobjectNo.last == "5"  {
+                        CustomSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
+                    }
                     else {
                         ButtonSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
                     }
@@ -1125,12 +1167,106 @@ struct ShortcutSelectHelperView: View {
     }
 }
 
+struct CustomSelectHelperView: View {
+    @Binding var buttons: [button]
+    @Binding var selectedobjectNo: String
+    @Binding var selectedText: String
+    @Binding var currSelectedSlide: Int
+    
+    @State var customCommand: String = ""
+    
+    var body: some View {
+        HStack {
+            VStack {
+                GroupBox {
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    Image(systemName: buttons[currSelectedButton].image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                        .padding(3)
+                    TextField("", text: $selectedText)
+                        .font(.title)
+                        .padding([.leading, .bottom, .trailing], 3.0)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .onSubmit {
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                            buttons[currSelectedButton].text = selectedText
+                            buttonSlides[currSelectedSlide] = buttons
+                        }
+                    Text("Press enter to save name")
+                        .padding(.bottom, 3.0)
+                }
+                
+                GroupBox {
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    HStack {
+                        Text("Info")
+                            .font(.title)
+                            .padding([.leading, .bottom, .trailing], 3.0)
+                        Spacer()
+                    }
+                    HStack {
+                    Text(buttons[currSelectedButton].about ?? "")
+                        .font(.headline)
+                        .multilineTextAlignment(.leading)
+                        .padding([.leading, .bottom, .trailing], 3.0)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .padding(.top, -2)
+                
+            }
+            .padding(.trailing, -2)
+            
+            GroupBox {
+                HStack {
+                    Spacer()
+                    VStack {
+                        Spacer()
+                        TextField("", text: $customCommand, axis: .vertical)
+                            .lineLimit(10...10)
+                            .padding([.leading, .bottom, .trailing], 3.0)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .onSubmit {
+                                let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                                buttons[currSelectedButton].info = customCommand
+                                buttonSlides[currSelectedSlide] = buttons
+                            }
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+            
+        }
+        .padding(.horizontal, 8.0)
+    }
+}
 
 // previews //
-
+/*
 struct previewView: View {
+    @State var customCommand: String = ""
     var body: some View {
-        Text("yay")
+        GroupBox {
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    Text("Enter command to be executed here:")
+                        .font(.title)
+                    Spacer()
+                    TextField("", text: $customCommand, axis: .vertical)
+                        .lineLimit(10...10)
+                        .padding([.leading, .bottom, .trailing], 3.0)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    Spacer()
+                }
+                Spacer()
+            }
+        }
     }
 }
 
@@ -1141,4 +1277,4 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         previewView()
     }
-}
+}*/

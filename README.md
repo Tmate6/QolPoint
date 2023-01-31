@@ -22,6 +22,7 @@ There are 3 types of buttons you can add. They can be added from the upper right
 	- Normal buttons (commands hardcoded) > Shortcut icon
 	- Folders  > Folder icon
 	- Shortcuts (can open any file/app) > Plus icon
+	- Custom buttons (executes set command) > Terminal icon
 
 ***--- Editing Buttons ---***
 
@@ -43,3 +44,9 @@ You can delete buttons by hovering over them and clicking the X icon.
 **Change the name** by entering it in the textbox and pressing enter.
 
 **Assign files to them** by dragging and dropting them onto the area on the right.
+
+***--- Custom button options ---***
+
+**Change the name** by entering it in the textbox and pressing enter.
+
+**Set command** by entering it on the right.

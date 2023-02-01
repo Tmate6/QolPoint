@@ -8,7 +8,6 @@
 import SwiftUI
 import Foundation
 import Cocoa
-import HotKey
 import KeyboardShortcuts
 
 var windowIsHidden: Bool = true

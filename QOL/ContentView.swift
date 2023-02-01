@@ -8,7 +8,8 @@
 import SwiftUI
 import KeyboardShortcuts
 
-// enum //
+
+// MARK: - Enum
 
 enum windowState {
     case main
@@ -28,7 +29,7 @@ enum btnType: Int {
 }
 
 
-// hashables //
+// MARK: - Hashables
 
 struct mainMenu: Hashable {
     let no: Character
@@ -46,7 +47,7 @@ struct button: Hashable {
 }
 
 
-// btn-related //
+// MARK: - Btn-related
 
 var allButtons: [button] = [
     // Command
@@ -73,7 +74,7 @@ var buttonSlides: [[button]] = loadBtns()
 var noOfSlides: Int = 0
 
 
-// setup/helper //
+// MARK: - Setup/Helper
 
 func commandAction(id: Int) {
     if id == 1 { // Sleep
@@ -139,14 +140,14 @@ func loadBtns() -> [[button]] {
             
             if item == "" { continue }
             
-            if item.contains("***") {
+            else if item.contains("***") {
                 let itemInfoTransition = item.components(separatedBy: ";;;")
                 let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "***")
                 print(itemInfo)
                 returnSlide.append(button(no: Int(itemInfoTransition[0].dropLast())!, type: .shortcut, text: itemInfo[0], image: "link", about: "Opens a set path", info: itemInfo[1]))
             }
             
-            if item.contains("///") {
+            else if item.contains("///") {
                 let itemInfoTransition = item.components(separatedBy: ";;;")
                 let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "///")
                 print(itemInfo)
@@ -233,8 +234,12 @@ struct ContentView: View {
     }
 }
 
+func checkForCharacters(input: String) -> Bool {
+    if input.contains(":::") || input.contains(",,,") || input.contains("***") || input.contains("///") || input.contains(";;;") { return true }
+    else { return false }
+}
 
-// main views //
+// MARK: - Main Views
 
 struct mainView: View {
     
@@ -324,7 +329,7 @@ struct mainView: View {
                                 }
                                 
                                 else if option.type == .shortcut {
-                                    let infoChange = String(option.info ?? "").split(separator: " ")
+                                    let infoChange = String(option.info ?? ".").split(separator: " ")
                                     var optionInfo: String = ""
                                     
                                     for option in infoChange {
@@ -404,17 +409,19 @@ struct fileCreateView: View {
                     TextField(String(path), text: $input)
                         .padding(.trailing, 1.0)
                         .onSubmit {
-                            if errorRetruned {
-                                FileManager.default.createFile(atPath: path + input, contents: nil)
-                                NSWorkspace.shared.open(URL(fileURLWithPath: path + input))
-                                currWinState = .main
-                                NSApp.hide(nil)
-                            }
-                            else {
-                                FileManager.default.createFile(atPath: path.dropLast() + input, contents: nil)
-                                NSWorkspace.shared.open(URL(fileURLWithPath: path.dropLast() + input))
-                                currWinState = .main
-                                NSApp.hide(nil)
+                            if !checkForCharacters(input: String(path)) {
+                                if errorRetruned {
+                                    FileManager.default.createFile(atPath: path + input, contents: nil)
+                                    NSWorkspace.shared.open(URL(fileURLWithPath: path + input))
+                                    currWinState = .main
+                                    NSApp.hide(nil)
+                                }
+                                else {
+                                    FileManager.default.createFile(atPath: path.dropLast() + input, contents: nil)
+                                    NSWorkspace.shared.open(URL(fileURLWithPath: path.dropLast() + input))
+                                    currWinState = .main
+                                    NSApp.hide(nil)
+                                }
                             }
                         }
                 }
@@ -525,7 +532,7 @@ struct getTextView: View {
     }
 }
 
-// buttons save to memory when back button is pressde here //
+// Button slides save to memory when back button is pressed - in this struct //
 
 struct setupView: View {
     @Binding var currWinState: windowState
@@ -577,11 +584,11 @@ struct setupView: View {
                                         }
                                         if item.type == .shortcut {
                                             buttonsSave += ";;;" + String(item.text)
-                                            buttonsSave += "***" + String(item.info!)
+                                            buttonsSave += "***" + String(item.info ?? "Shortcut")
                                         }
                                         if item.type == .custom {
                                             buttonsSave += ";;;" + String(item.text)
-                                            buttonsSave += "///" + String(item.info!)
+                                            buttonsSave += "///" + String(item.info ?? "Custom")
                                         }
                                         buttonsSave += ",,,"
                                     }
@@ -690,7 +697,7 @@ struct setupView: View {
 }
 
 
-// setup helper views //
+// MARK: - Setup Helper Views
 
 struct mainSettingsView: View {
     @Binding var buttons: [button]
@@ -702,6 +709,9 @@ struct mainSettingsView: View {
     
     @State var resetConfirmation = false
     @State var currWinState: windowState = .main
+    
+    @State var copiedToClipboard = false
+    
     var body: some View {
         VStack {
             Text("Main Shortcut")
@@ -715,20 +725,31 @@ struct mainSettingsView: View {
                     .background(BackgroundStyle())
             }
             Divider()
-            GroupBox {
-                Text(resetConfirmation ? "Confirm reset" : "Reset buttons")
-            }
-            
-            .padding(3)
-            .onTapGesture {
-                if !resetConfirmation {
-                    resetConfirmation = true
-                } else {
-                    UserDefaults.standard.set("13:::", forKey: "defaultButtons")
-                    buttonSlides = loadBtns()
-                    buttons = buttonSlides[0]
-                    resetConfirmation = false
+            HStack {
+                GroupBox {
+                    Text(resetConfirmation ? "Confirm reset" : "Reset buttons")
                 }
+                .padding(3)
+                .onTapGesture {
+                    if !resetConfirmation {
+                        resetConfirmation = true
+                    } else {
+                        UserDefaults.standard.set("13:::", forKey: "defaultButtons")
+                        buttonSlides = loadBtns()
+                        buttons = buttonSlides[0]
+                        resetConfirmation = false
+                    }
+                }
+                
+                GroupBox {
+                    Text(copiedToClipboard ? "Copied saves to clipboard" : "Copy button saves")
+                }
+                .padding(3)
+                .onTapGesture {
+                    let _ = shell("osascript -e 'set the clipboard to \"" + String(UserDefaults.standard.string(forKey: "defaultButtons")!) + "\"'")
+                    copiedToClipboard = true
+                }
+                
             }
             Divider()
             Spacer()
@@ -955,6 +976,7 @@ struct selectBtnView: View {
                                         .padding([.leading, .bottom, .trailing], 3.0)
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
                                         .onSubmit {
+                                            if checkForCharacters(input: selectedText) { selectedText = "Folder" }
                                             let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
                                             buttons[currSelectedButton].text = selectedText
                                             buttonSlides[currSelectedSlide] = buttons
@@ -1103,6 +1125,7 @@ struct ShortcutSelectHelperView: View {
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .onSubmit {
+                            if checkForCharacters(input: selectedText) { selectedText = "Shortcut" }
                             let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
                             buttons[currSelectedButton].text = selectedText
                             buttonSlides[currSelectedSlide] = buttons
@@ -1147,15 +1170,17 @@ struct ShortcutSelectHelperView: View {
             .onDrop(of: [.fileURL], isTargeted: nil) { providers in
                 if let loadableProvider = providers.first(where: { $0.canLoadObject(ofClass: URL.self) }) {
                     _ = loadableProvider.loadObject(ofClass: URL.self) { fileURL, _ in
-                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
-                        
-                        let splitPath = String(fileURL!.path).split(separator: "/")
-                        
-                        buttons[currSelectedButton].info = fileURL!.path
-                        buttons[currSelectedButton].text = String(splitPath.last!)
-                        selectedText = String(splitPath.last!)
-                        buttonSlides[currSelectedSlide] = buttons
-                        print(buttons[currSelectedButton].info!)
+                        if !checkForCharacters(input: fileURL!.path) {
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                            
+                            let splitPath = String(fileURL!.path).split(separator: "/")
+                            
+                            buttons[currSelectedButton].info = fileURL!.path
+                            buttons[currSelectedButton].text = String(splitPath.last!)
+                            selectedText = String(splitPath.last!)
+                            buttonSlides[currSelectedSlide] = buttons
+                            print(buttons[currSelectedButton].info!)
+                        }
                     }
                     return true
                 }
@@ -1190,6 +1215,7 @@ struct CustomSelectHelperView: View {
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .onSubmit {
+                            if checkForCharacters(input: selectedText) { selectedText = "Custom" }
                             let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
                             buttons[currSelectedButton].text = selectedText
                             buttonSlides[currSelectedSlide] = buttons
@@ -1216,7 +1242,6 @@ struct CustomSelectHelperView: View {
                     Spacer()
                 }
                 .padding(.top, -2)
-                
             }
             .padding(.trailing, -2)
             
@@ -1230,6 +1255,7 @@ struct CustomSelectHelperView: View {
                             .padding([.leading, .bottom, .trailing], 3.0)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .onSubmit {
+                                if checkForCharacters(input: customCommand) { customCommand = "_" }
                                 let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
                                 buttons[currSelectedButton].info = customCommand
                                 buttonSlides[currSelectedSlide] = buttons
@@ -1245,7 +1271,7 @@ struct CustomSelectHelperView: View {
     }
 }
 
-// previews //
+// MARK: - Previes
 /*
 struct previewView: View {
     @State var customCommand: String = ""

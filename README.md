@@ -10,6 +10,8 @@ QolPoint is an app that lets you execute terminal commands and open files from a
 
 The main part of the app is a dock-like GUI that contains the buttons that you select. You can configure what is shown in settings, which is reachable from the menu bar or by clicking on the **Settings** button.
 
+***DEFAULT SHORTCUT IS "CMD+E"***
+
 ***--- Main Settings ---***
 	
 Set keybind for showing/hiding app in:

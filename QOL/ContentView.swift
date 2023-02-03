@@ -126,6 +126,7 @@ func commandAction(id: Int) {
 
 func loadBtns() -> [[button]] {
     noOfSlides = 0
+    
     UserDefaults.standard.register(defaults: ["defaultButtons" : "13:::"])
     
     var buttonReturn: [[button]] = [[]]
@@ -184,9 +185,9 @@ func changeSlide(slide: Int, changeTo: [button]) {
 struct ContentView: View {
     @Binding var currWinState: windowState
     
-    @State var buttons: [button] = buttonSlides[0]
+    @Binding var buttons: [button]
     
-    @State var displayString: String = ""
+    @Binding var displayString: String
     
     var body: some View {
         switch currWinState {
@@ -240,6 +241,55 @@ func checkForCharacters(input: String) -> Bool {
 }
 
 // MARK: - Main Views
+
+func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button], String) {
+    if option.type == .popup {
+        if option.no == 1 {
+            return (.fileCreate, currSlide, "")
+        }
+        if option.no == 2 {
+            let wifiName = shell("/Sy*/L*/Priv*/Apple8*/V*/C*/R*/airport -I | awk '/ SSID:/ {print $2}'")
+            if wifiName != "" {
+                let wifiPassword = shell("security find-generic-password -wa \"" + wifiName.dropLast() + "\"")
+                return (.getText, buttonSlides[option.no], wifiPassword)
+            }
+        }
+    }
+    
+    else if option.type == .window {
+        if option.no == 1 {
+            return (.setup, currSlide, "")
+        }
+    }
+    
+    else if option.type == .folder {
+        return (.main, buttonSlides[option.no], "")
+    }
+    
+    else if option.type == .command {
+        commandAction(id: Int(exactly: option.no)!)
+    }
+    
+    else if option.type == .shortcut {
+        let infoChange = String(option.info ?? ".").split(separator: " ")
+        var optionInfo: String = ""
+        
+        for option in infoChange {
+            optionInfo += option
+            optionInfo += "\\ "
+        }
+        optionInfo.removeLast()
+        let _ = shell("open " + (optionInfo))
+        NSApp.hide(nil)
+    }
+    
+    else if option.type == .custom {
+        let _ = shell(option.info ?? "")
+        NSApp.hide(nil)
+    }
+    
+    return (.main, currSlide, "")
+}
 
 struct mainView: View {
     
@@ -301,50 +351,7 @@ struct mainView: View {
                                 }
                             }
                             .onTapGesture {
-                                if option.type == .popup {
-                                    if option.no == 1 {
-                                        self.currWinState = .fileCreate
-                                    }
-                                    if option.no == 2 {
-                                        let wifiName = shell("/Sy*/L*/Priv*/Apple8*/V*/C*/R*/airport -I | awk '/ SSID:/ {print $2}'")
-                                        if wifiName != "" {
-                                            let wifiPassword = shell("security find-generic-password -wa \"" + wifiName.dropLast() + "\"")
-                                            displayString = wifiPassword
-                                            self.currWinState = .getText
-                                        }
-                                    }
-                                }
-                                else if option.type == .window {
-                                    if option.no == 1 {
-                                        self.currWinState = .setup
-                                    }
-                                }
-                                
-                                else if option.type == .folder {
-                                    buttons = buttonSlides[option.no]
-                                }
-                                
-                                else if option.type == .command {
-                                    commandAction(id: Int(exactly: option.no)!)
-                                }
-                                
-                                else if option.type == .shortcut {
-                                    let infoChange = String(option.info ?? ".").split(separator: " ")
-                                    var optionInfo: String = ""
-                                    
-                                    for option in infoChange {
-                                        optionInfo += option
-                                        optionInfo += "\\ "
-                                    }
-                                    optionInfo.removeLast()
-                                    let _ = shell("open " + (optionInfo))
-                                    NSApp.hide(nil)
-                                }
-                                
-                                else if option.type == .custom {
-                                    print(shell(option.info ?? ""))
-                                    NSApp.hide(nil)
-                                }
+                                (currWinState, buttons, displayString) = buttonHandler(option: option, currSlide: buttons)
                             }
                             .frame(width: 80)
                             Spacer()
@@ -597,6 +604,7 @@ struct setupView: View {
                                 
                                 print(buttonsSave)
                                 defaults.set(buttonsSave, forKey: "defaultButtons")
+                                UserDefaults.standard.synchronize()
                                 
                                 print(buttonsSave)
                                 if buttons.count <= 1 {
@@ -712,6 +720,8 @@ struct mainSettingsView: View {
     
     @State var copiedToClipboard = false
     
+    @State var importButtonsInput: String = ""
+    
     var body: some View {
         VStack {
             Text("Main Shortcut")
@@ -725,31 +735,44 @@ struct mainSettingsView: View {
                     .background(BackgroundStyle())
             }
             Divider()
-            HStack {
-                GroupBox {
-                    Text(resetConfirmation ? "Confirm reset" : "Reset buttons")
-                }
-                .padding(3)
-                .onTapGesture {
-                    if !resetConfirmation {
-                        resetConfirmation = true
-                    } else {
-                        UserDefaults.standard.set("13:::", forKey: "defaultButtons")
-                        buttonSlides = loadBtns()
-                        buttons = buttonSlides[0]
-                        resetConfirmation = false
+            VStack {
+                HStack {
+                    GroupBox {
+                        Text(resetConfirmation ? "Confirm reset" : "Reset buttons")
+                    }
+                    .padding(3)
+                    .onTapGesture {
+                        if !resetConfirmation {
+                            resetConfirmation = true
+                        } else {
+                            UserDefaults.standard.set("13:::", forKey: "defaultButtons")
+                            buttonSlides = loadBtns()
+                            buttons = buttonSlides[0]
+                            resetConfirmation = false
+                        }
+                    }
+                    
+                    GroupBox {
+                        Text(copiedToClipboard ? "Copied saves to clipboard" : "Copy button saves")
+                    }
+                    .padding(3)
+                    .onTapGesture {
+                        let _ = shell("osascript -e 'set the clipboard to \"" + String(UserDefaults.standard.string(forKey: "defaultButtons")!) + "\"'")
+                        copiedToClipboard = true
                     }
                 }
-                
-                GroupBox {
-                    Text(copiedToClipboard ? "Copied saves to clipboard" : "Copy button saves")
+                HStack {
+                    TextField("Paste button saves code here", text: $importButtonsInput)
+                        .padding(3)
+                    GroupBox {
+                        Text("Import buttons")
+                    }
+                        .padding(3)
+                        .onTapGesture {
+                            print(importButtonsInput)
+                        }
                 }
-                .padding(3)
-                .onTapGesture {
-                    let _ = shell("osascript -e 'set the clipboard to \"" + String(UserDefaults.standard.string(forKey: "defaultButtons")!) + "\"'")
-                    copiedToClipboard = true
-                }
-                
+                .padding(.horizontal)
             }
             Divider()
             Spacer()

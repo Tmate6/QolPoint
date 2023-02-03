@@ -2,7 +2,9 @@
 QolPoint - A quality of life mac app
 -----------
 
-QolPoint is an app that lets you execute terminal commands and open files from a simple GUI. It comes with many useful commands built-in, like letting you create **any kind of file in Finder**, **Showing you your current Wifi password** or **ejecting all disks**. You cam also add your own commands, and can sort all of these into folders.
+QolPoint is an app that lets you execute terminal commands and open files from a simple GUI, accesible through a keyboard shortcut. It comes with many useful commands built-in, like letting you create **any kind of file in Finder**, **Showing you your current Wifi password** or **ejecting all disks**. You cam also add your own commands, and can sort all of these into folders.
+
+***DEFAULT KEYBOARD SHORTCUT: CMD+E***
 
 ![SCR-20230131-qso](https://user-images.githubusercontent.com/121255421/215836287-be3859d3-4948-453a-a53e-09cc0bef8402.png)
 
@@ -54,7 +56,7 @@ You can delete buttons by hovering over them and clicking the X icon.
 
 **Change the name** by entering it in the textbox and pressing enter.
 
-**Add/remove buttons inside the folder** by clicking on "Edit Items". The slide preview will change to the contents of that folder. You can go back to the main slide by pressing the back arrow on the right.
+**Add/remove buttons inside the folder** by clicking on "Edit Items". The slide preview will change to the contents of that folder. You can go back to the main slide by pressing the back arrow on the left.
 
 ![SCR-20230131-qtx](https://user-images.githubusercontent.com/121255421/215845550-798c948e-6861-49df-a8a4-f04ded7a8afd.png)
 ![SCR-20230131-qu7](https://user-images.githubusercontent.com/121255421/215846589-1dca85a1-1ed9-4dcf-9c47-a609e927a1fc.png)

@@ -10,8 +10,6 @@ QolPoint is an app that lets you execute terminal commands and open files from a
 
 The main part of the app is a dock-like GUI that contains the buttons that you select. You can configure what is shown in settings, which is reachable from the menu bar or by clicking on the **Settings** button.
 
-***DEFAULT SHORTCUT IS "CMD+E"***
-
 ***--- Main Settings ---***
 	
 Set keybind for showing/hiding app in:
@@ -56,7 +54,7 @@ You can delete buttons by hovering over them and clicking the X icon.
 
 **Change the name** by entering it in the textbox and pressing enter.
 
-**Add/remove buttons inside the folder** by clicking on "Edit Items". The slide preview will change to the contents of that folder. You can go back to the main slide by pressing the back arrow on the left.
+**Add/remove buttons inside the folder** by clicking on "Edit Items". The slide preview will change to the contents of that folder. You can go back to the main slide by pressing the back arrow on the right.
 
 ![SCR-20230131-qtx](https://user-images.githubusercontent.com/121255421/215845550-798c948e-6861-49df-a8a4-f04ded7a8afd.png)
 ![SCR-20230131-qu7](https://user-images.githubusercontent.com/121255421/215846589-1dca85a1-1ed9-4dcf-9c47-a609e927a1fc.png)

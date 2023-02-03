@@ -10,18 +10,18 @@ import Foundation
 import Cocoa
 import KeyboardShortcuts
 
-var windowIsHidden: Bool = true
-
 extension KeyboardShortcuts.Name {
     static let toggleShortcut = Self("toggleShortcut", default: .init(.e, modifiers: [.command]))
 }
+
+// MARK: - Appdel
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     public func applicationWillUpdate(_ notification: Notification) {
             DispatchQueue.main.async {
                 let currentMainMenu = NSApplication.shared.mainMenu
 
-                let removedMenus: [NSMenuItem?] = [currentMainMenu?.item(withTitle: "File"), currentMainMenu?.item(withTitle: "Edit"), currentMainMenu?.item(withTitle: "View"), currentMainMenu?.item(withTitle: "Window")]
+                let removedMenus: [NSMenuItem?] = [currentMainMenu?.item(withTitle: "File"), currentMainMenu?.item(withTitle: "View"), currentMainMenu?.item(withTitle: "Window")]
                 
                 for menu in removedMenus {
                     if menu != nil {
@@ -30,9 +30,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
-        UserDefaults.standard.register(defaults: ["defaultButtons" : "0"])
-        
         let window = NSApplication.shared.windows.first!
         window.titlebarAppearsTransparent = true
         window.backgroundColor = .white
@@ -40,13 +39,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.standardWindowButton(.miniaturizeButton)!.isHidden = true
         window.standardWindowButton(.zoomButton)!.isHidden = true
         
-        NSApp.hide(nil)
         func windowShouldClose(_ sender: NSWindow) -> Bool {
             NSApp.hide(nil)
             return false
         }
     }
 }
+
+// MARK: - Funcs
 
 func shell(_ command: String) -> String {
     let task = Process()
@@ -78,6 +78,7 @@ func getScreenWithMouse() -> NSScreen? {
     return screenWithMouse
 }
 
+// MARK: - Main
 
 @available(macOS 13.0, *)
 @main
@@ -86,11 +87,16 @@ struct QolApp: App {
     @State var windowContent: windowState = .main
     @State var screen = (getScreenWithMouse() ?? .main)
     
+    @State var buttonShortcut: Int = 0
+    
+    @State var buttons: [button] = buttonSlides[0]
+    @State var displayString: String = ""
+    
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
         WindowGroup {
-            ContentView(currWinState: $windowContent)
+            ContentView(currWinState: $windowContent, buttons: $buttons, displayString: $displayString)
                 .hostingWindowPosition(
                     vertical: .top,
                     horizontal: .center,
@@ -103,6 +109,71 @@ struct QolApp: App {
             CommandGroup(replacing: .appSettings) {
                 Button("Settings...") { windowContent = .setup }
                     .keyboardShortcut(",")
+            }
+            CommandMenu("Buttons") {
+                Button("Button 1") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[0], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("1")
+                
+                Button("Button 2") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[1], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("2")
+                
+                Button("Button 3") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[2], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("3")
+                
+                Button("Button 4") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[3], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("4")
+                
+                Button("Button 5") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[4], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("5")
+                
+                Button("Button 6") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[5], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("6")
+                
+                Button("Button 7") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[6], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("7")
+                
+                Button("Button 8") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[7], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("8")
+                
+                Button("Button 9") {
+                    if windowContent == .main {
+                        (windowContent, buttons, displayString) = buttonHandler(option: buttons[8], currSlide: buttons)
+                    }
+                }
+                    .keyboardShortcut("9")
+                
             }
         }
     }

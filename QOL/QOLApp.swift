@@ -14,6 +14,7 @@ extension KeyboardShortcuts.Name {
     static let toggleShortcut = Self("toggleShortcut", default: .init(.e, modifiers: [.command]))
 }
 
+
 // MARK: - Appdel
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -46,6 +47,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+
 // MARK: - Funcs
 
 func shell(_ command: String) -> String {
@@ -77,6 +79,7 @@ func getScreenWithMouse() -> NSScreen? {
 
     return screenWithMouse
 }
+
 
 // MARK: - Main
 

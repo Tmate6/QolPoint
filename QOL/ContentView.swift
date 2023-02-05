@@ -240,6 +240,7 @@ func checkForCharacters(input: String) -> Bool {
     else { return false }
 }
 
+
 // MARK: - Main Views
 
 func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button], String) {
@@ -631,8 +632,8 @@ struct setupView: View {
                             .edgesIgnoringSafeArea(.vertical)
                             .alert(isPresented: $itemsShownErrorAlert) {
                                     Alert(
-                                        title: Text("Error - No items found to show"),
-                                        message: Text("You must have items selected below - Please replace the \"None\" placeholder with an item")
+                                        title: Text("Error - No buttons found"),
+                                        message: Text("You must have atleast one button added to save.")
                                     )
                                 }
                         Spacer()
@@ -705,7 +706,7 @@ struct setupView: View {
 }
 
 
-// MARK: - Setup Helper Views
+// MARK: - Settings views
 
 struct mainSettingsView: View {
     @Binding var buttons: [button]
@@ -984,44 +985,7 @@ struct selectBtnView: View {
                         Text("Settings will be editable here once an object is selected.")
                     }
                     else if selectedobjectNo.last == "0" {
-                        HStack {
-                            VStack {
-                                GroupBox {
-                                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                                    Image(systemName: buttons[currSelectedButton].image)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 30, height: 30)
-                                        .padding(3)
-                                    
-                                    TextField("", text: $selectedText)
-                                        .font(.title)
-                                        .padding([.leading, .bottom, .trailing], 3.0)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                        .onSubmit {
-                                            if checkForCharacters(input: selectedText) { selectedText = "Folder" }
-                                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                                            buttons[currSelectedButton].text = selectedText
-                                            buttonSlides[currSelectedSlide] = buttons
-                                        }
-                                    Text("Press enter to save name")
-                                        .padding(.bottom, 3.0)
-                                }
-                                GroupBox {
-                                    Text("Edit Items")
-                                }
-                                .onTapGesture {
-                                    var currSelectedSlideTransfer: String = selectedobjectNo
-                                    currSelectedSlideTransfer.removeLast()
-                                    currSelectedSlide = Int(currSelectedSlideTransfer)!
-                                    selectedobjectNo = "-1"
-                                    buttons = buttonSlides[currSelectedSlide]
-                                }
-                                Spacer()
-                            }
-                            .padding(.trailing, -3)
-                        }
-                        .padding(.horizontal, 7.0)
+                        FolderSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
                     }
                     else if selectedobjectNo.last == "4"  {
                         ShortcutSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
@@ -1039,11 +1003,62 @@ struct selectBtnView: View {
                     NSApp.keyWindow?.makeFirstResponder(nil)
                 }
             }
-            .frame(height: 200)
+            .frame(height: 300)
             Divider()
             Spacer()
         }
         .padding(.trailing, 1.0)
+    }
+}
+
+
+// MARK: - Setup Helper Views
+
+struct FolderSelectHelperView: View {
+    @Binding var buttons: [button]
+    @Binding var selectedobjectNo: String
+    @Binding var selectedText: String
+    @Binding var currSelectedSlide: Int
+    
+    var body: some View {
+        HStack {
+            VStack {
+                GroupBox {
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                    Image(systemName: buttons[currSelectedButton].image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                        .padding(3)
+                    
+                    TextField("", text: $selectedText)
+                        .font(.title)
+                        .padding([.leading, .bottom, .trailing], 3.0)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .onSubmit {
+                            if checkForCharacters(input: selectedText) { selectedText = "Folder" }
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                            buttons[currSelectedButton].text = selectedText
+                            buttonSlides[currSelectedSlide] = buttons
+                        }
+                    Text("Press enter to save name")
+                        .padding(.bottom, 3.0)
+                }
+                GroupBox {
+                    Text("Edit Items")
+                }
+                .onTapGesture {
+                    var currSelectedSlideTransfer: String = selectedobjectNo
+                    currSelectedSlideTransfer.removeLast()
+                    currSelectedSlide = Int(currSelectedSlideTransfer)!
+                    selectedobjectNo = "-1"
+                    buttons = buttonSlides[currSelectedSlide]
+                }
+                Spacer()
+            }
+            .padding(.trailing, -3)
+        }
+        .padding(.horizontal, 7.0)
     }
 }
 
@@ -1274,7 +1289,7 @@ struct CustomSelectHelperView: View {
                     VStack {
                         Spacer()
                         TextField("", text: $customCommand, axis: .vertical)
-                            .lineLimit(10...10)
+                            .lineLimit(16...16)
                             .padding([.leading, .bottom, .trailing], 3.0)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .onSubmit {
@@ -1293,6 +1308,7 @@ struct CustomSelectHelperView: View {
         .padding(.horizontal, 8.0)
     }
 }
+
 
 // MARK: - Previes
 /*

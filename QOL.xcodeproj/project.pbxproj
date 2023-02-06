@@ -12,7 +12,6 @@
 		6D05AD10291E9AA300AD26C4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D05AD0F291E9AA300AD26C4 /* Assets.xcassets */; };
 		6D05AD13291E9AA300AD26C4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D05AD12291E9AA300AD26C4 /* Preview Assets.xcassets */; };
 		6D39EFD12954D9D900F40B20 /* WindowPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D39EFD02954D9D900F40B20 /* WindowPosition.swift */; };
-		6D6E41C429240CA9007AE825 /* HotKey in Frameworks */ = {isa = PBXBuildFile; productRef = 6D6E41C329240CA9007AE825 /* HotKey */; };
 		6D6E41D1292956EA007AE825 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 6D6E41D0292956EA007AE825 /* KeyboardShortcuts */; };
 /* End PBXBuildFile section */
 
@@ -31,7 +30,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6D6E41C429240CA9007AE825 /* HotKey in Frameworks */,
 				6D6E41D1292956EA007AE825 /* KeyboardShortcuts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,7 +99,6 @@
 			);
 			name = QOL;
 			packageProductDependencies = (
-				6D6E41C329240CA9007AE825 /* HotKey */,
 				6D6E41D0292956EA007AE825 /* KeyboardShortcuts */,
 			);
 			productName = QOL;
@@ -133,7 +130,6 @@
 			);
 			mainGroup = 6D05ACFF291E9AA000AD26C4;
 			packageReferences = (
-				6D6E41C229240CA9007AE825 /* XCRemoteSwiftPackageReference "HotKey" */,
 				6D6E41CF292956EA007AE825 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 			);
 			productRefGroup = 6D05AD09291E9AA000AD26C4 /* Products */;
@@ -308,7 +304,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 3.1;
+				MARKETING_VERSION = 3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = Tmate6.QOL;
 				PRODUCT_NAME = QolPoint;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -340,7 +336,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 3.1;
+				MARKETING_VERSION = 3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = Tmate6.QOL;
 				PRODUCT_NAME = QolPoint;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -372,14 +368,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6D6E41C229240CA9007AE825 /* XCRemoteSwiftPackageReference "HotKey" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/soffes/HotKey";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		6D6E41CF292956EA007AE825 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts.git";
@@ -391,11 +379,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6D6E41C329240CA9007AE825 /* HotKey */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6D6E41C229240CA9007AE825 /* XCRemoteSwiftPackageReference "HotKey" */;
-			productName = HotKey;
-		};
 		6D6E41D0292956EA007AE825 /* KeyboardShortcuts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6D6E41CF292956EA007AE825 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;

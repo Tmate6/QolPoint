@@ -252,7 +252,7 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
             let wifiName = shell("/Sy*/L*/Priv*/Apple8*/V*/C*/R*/airport -I | awk '/ SSID:/ {print $2}'")
             if wifiName != "" {
                 let wifiPassword = shell("security find-generic-password -wa \"" + wifiName.dropLast() + "\"")
-                return (.getText, buttonSlides[option.no], wifiPassword)
+                return (.getText, currSlide, wifiPassword)
             }
         }
     }

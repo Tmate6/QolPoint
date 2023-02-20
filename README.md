@@ -2,7 +2,7 @@
 QolPoint - A quality of life mac app
 -----------
 
-QolPoint is an app that lets you execute terminal commands and open files from a simple GUI, accesible through a keyboard shortcut. It comes with many useful commands built-in, like letting you create **any kind of file in Finder**, **Showing you your current Wifi password** or **ejecting all disks**. You cam also add your own commands, and can sort all of these into folders.
+QolPoint is an app that lets you execute terminal commands and open files from a simple GUI, accesible through a keyboard shortcut. It comes with many useful commands built-in, like letting you create **any kind of file in Finder**, **showing you your current wifi password** or **ejecting all disks**. You cam also add your own commands, and can sort all of these into folders.
 
 These commands can be run by clicking on their assigned button, or through a keyboard shortcut.
 
@@ -16,7 +16,7 @@ The main part of the app is a dock-like GUI that contains the buttons that you s
 
 ***--- Main Settings ---***
 	
-Set keybind for showing/hiding app in:
+Set the keybind for showing/hiding app in:
 
 	Main Settings > Main Shortcut
 
@@ -67,7 +67,7 @@ You can delete buttons by hovering over them and clicking the X icon.
 
 **Change the name** by entering it in the textbox and pressing enter.
 
-**Assign files to them** by dragging and dropting them onto the area on the right.
+**Assign files to them** by dragging and dropping them onto the area on the right.
 
 ![SCR-20230131-qud](https://user-images.githubusercontent.com/121255421/215845962-a132840e-be29-45f0-bb43-fe6c7c2f4fa8.png)
 

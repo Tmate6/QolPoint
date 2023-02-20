@@ -77,6 +77,7 @@ var noOfSlides: Int = 0
 // MARK: - Setup/Helper
 
 func commandAction(id: Int) {
+    NSApp.hide(nil)
     if id == 1 { // Sleep
         let _ = shell("pmset sleepnow")
     }
@@ -121,7 +122,6 @@ func commandAction(id: Int) {
         }
         print(shell("osascript -e 'tell application \"Terminal\" to activate (do script \"cd " + path + "\")'"))
     }
-    NSApp.hide(nil)
 }
 
 func loadBtns() -> [[button]] {
@@ -272,6 +272,7 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
     }
     
     else if option.type == .shortcut {
+        NSApp.hide(nil)
         let infoChange = String(option.info ?? ".").split(separator: " ")
         var optionInfo: String = ""
         
@@ -281,12 +282,11 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
         }
         optionInfo.removeLast()
         let _ = shell("open " + (optionInfo))
-        NSApp.hide(nil)
     }
     
     else if option.type == .custom {
-        let _ = shell(option.info ?? "")
         NSApp.hide(nil)
+        let _ = shell(option.info ?? "")
     }
     
     return (.main, currSlide, "")

@@ -77,7 +77,6 @@ var noOfSlides: Int = 0
 // MARK: - Setup/Helper
 
 func commandAction(id: Int) {
-    NSApp.hide(nil)
     if id == 1 { // Sleep
         let _ = shell("pmset sleepnow")
     }
@@ -158,6 +157,7 @@ func loadBtns() -> [[button]] {
             else if item.contains(";;;") {
                 let itemInfo = item.components(separatedBy: ";;;")
                 returnSlide.append(button(no: Int(itemInfo[0].dropLast())!, type: .folder, text: itemInfo[1], image: "folder", about: nil))
+                if Int(itemInfo[0].dropLast())! > noOfSlides { noOfSlides = Int(itemInfo[0].dropLast())! + 1 }
             }
             
             else {
@@ -174,7 +174,7 @@ func loadBtns() -> [[button]] {
         }
         
     }
-    print(noOfSlides)
+    print("Slides" + String(noOfSlides))
     return buttonReturn
 }
 
@@ -268,6 +268,7 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
     }
     
     else if option.type == .command {
+        NSApp.hide(nil)
         commandAction(id: Int(exactly: option.no)!)
     }
     
@@ -985,7 +986,44 @@ struct selectBtnView: View {
                         Text("Settings will be editable here once an object is selected.")
                     }
                     else if selectedobjectNo.last == "0" {
-                        FolderSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
+                        HStack {
+                            VStack {
+                                GroupBox {
+                                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                                    Image(systemName: buttons[currSelectedButton].image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 30, height: 30)
+                                        .padding(3)
+                                    
+                                    TextField("", text: $selectedText)
+                                        .font(.title)
+                                        .padding([.leading, .bottom, .trailing], 3.0)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .onSubmit {
+                                            if checkForCharacters(input: selectedText) { selectedText = "Folder" }
+                                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                                            buttons[currSelectedButton].text = selectedText
+                                            buttonSlides[currSelectedSlide] = buttons
+                                        }
+                                    Text("Press enter to save name")
+                                        .padding(.bottom, 3.0)
+                                }
+                                GroupBox {
+                                    Text("Edit Items")
+                                }
+                                .onTapGesture {
+                                    var currSelectedSlideTransfer: String = selectedobjectNo
+                                    selectedobjectNo = "-1"
+                                    currSelectedSlideTransfer.removeLast()
+                                    currSelectedSlide = Int(currSelectedSlideTransfer)!
+                                    buttons = buttonSlides[currSelectedSlide]
+                                }
+                                Spacer()
+                            }
+                            .padding(.trailing, -3)
+                        }
+                        .padding(.horizontal, 7.0)
                     }
                     else if selectedobjectNo.last == "4"  {
                         ShortcutSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
@@ -1013,54 +1051,6 @@ struct selectBtnView: View {
 
 
 // MARK: - Setup Helper Views
-
-struct FolderSelectHelperView: View {
-    @Binding var buttons: [button]
-    @Binding var selectedobjectNo: String
-    @Binding var selectedText: String
-    @Binding var currSelectedSlide: Int
-    
-    var body: some View {
-        HStack {
-            VStack {
-                GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                    Image(systemName: buttons[currSelectedButton].image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 30, height: 30)
-                        .padding(3)
-                    
-                    TextField("", text: $selectedText)
-                        .font(.title)
-                        .padding([.leading, .bottom, .trailing], 3.0)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .onSubmit {
-                            if checkForCharacters(input: selectedText) { selectedText = "Folder" }
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                            buttons[currSelectedButton].text = selectedText
-                            buttonSlides[currSelectedSlide] = buttons
-                        }
-                    Text("Press enter to save name")
-                        .padding(.bottom, 3.0)
-                }
-                GroupBox {
-                    Text("Edit Items")
-                }
-                .onTapGesture {
-                    var currSelectedSlideTransfer: String = selectedobjectNo
-                    currSelectedSlideTransfer.removeLast()
-                    currSelectedSlide = Int(currSelectedSlideTransfer)!
-                    selectedobjectNo = "-1"
-                    buttons = buttonSlides[currSelectedSlide]
-                }
-                Spacer()
-            }
-            .padding(.trailing, -3)
-        }
-        .padding(.horizontal, 7.0)
-    }
-}
 
 struct ButtonSelectHelperView: View {
     @Binding var buttons: [button]

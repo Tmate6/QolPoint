@@ -121,7 +121,6 @@ func commandAction(id: Int) {
         }
         print(shell("osascript -e 'tell application \"Terminal\" to activate (do script \"cd " + path + "\")'"))
     }
-    NSApp.hide(nil)
 }
 
 func loadBtns() -> [[button]] {
@@ -131,33 +130,32 @@ func loadBtns() -> [[button]] {
     
     var buttonReturn: [[button]] = [[]]
     print(UserDefaults.standard.string(forKey: "defaultButtons")!)
+    
+    noOfSlides = 1
     for array in UserDefaults.standard.string(forKey: "defaultButtons")!.components(separatedBy: ":::") {
-        if array == "" { print("e"); continue }
-        noOfSlides += 1
+        if array == "" { buttonReturn.append([]) }
         var itemNo: Int = 0
         var returnSlide: [button] = []
         
         for item in array.components(separatedBy: ",,,") {
-            
             if item == "" { continue }
             
             else if item.contains("***") {
                 let itemInfoTransition = item.components(separatedBy: ";;;")
                 let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "***")
-                print(itemInfo)
                 returnSlide.append(button(no: Int(itemInfoTransition[0].dropLast())!, type: .shortcut, text: itemInfo[0], image: "link", about: "Opens a set path", info: itemInfo[1]))
             }
             
             else if item.contains("///") {
                 let itemInfoTransition = item.components(separatedBy: ";;;")
                 let itemInfo = String(itemInfoTransition[1]).components(separatedBy: "///")
-                print(itemInfo)
                 returnSlide.append(button(no: Int(itemInfoTransition[0].dropLast())!, type: .custom, text: itemInfo[0], image: "terminal", about: "Executes a custom command", info: itemInfo[1]))
             }
             
             else if item.contains(";;;") {
                 let itemInfo = item.components(separatedBy: ";;;")
-                returnSlide.append(button(no: Int(itemInfo[0].dropLast())!, type: .folder, text: itemInfo[1], image: "folder", about: nil))
+                returnSlide.append(button(no: noOfSlides, type: .folder, text: itemInfo[1], image: "folder", about: nil))
+                noOfSlides += 1
             }
             
             else {
@@ -167,14 +165,16 @@ func loadBtns() -> [[button]] {
         }
         
         if buttonReturn == [[]] {
+            print("buttonReturn == [[]]")
             buttonReturn = [returnSlide]
         }
         else {
+            print("else")
             buttonReturn.append(returnSlide)
         }
         
     }
-    print(noOfSlides)
+    print("Slides" + String(noOfSlides))
     return buttonReturn
 }
 
@@ -252,7 +252,7 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
             let wifiName = shell("/Sy*/L*/Priv*/Apple8*/V*/C*/R*/airport -I | awk '/ SSID:/ {print $2}'")
             if wifiName != "" {
                 let wifiPassword = shell("security find-generic-password -wa \"" + wifiName.dropLast() + "\"")
-                return (.getText, buttonSlides[option.no], wifiPassword)
+                return (.getText, currSlide, wifiPassword)
             }
         }
     }
@@ -264,14 +264,17 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
     }
     
     else if option.type == .folder {
+        print(option.no)
         return (.main, buttonSlides[option.no], "")
     }
     
     else if option.type == .command {
+        NSApp.hide(nil)
         commandAction(id: Int(exactly: option.no)!)
     }
     
     else if option.type == .shortcut {
+        NSApp.hide(nil)
         let infoChange = String(option.info ?? ".").split(separator: " ")
         var optionInfo: String = ""
         
@@ -281,12 +284,11 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
         }
         optionInfo.removeLast()
         let _ = shell("open " + (optionInfo))
-        NSApp.hide(nil)
     }
     
     else if option.type == .custom {
-        let _ = shell(option.info ?? "")
         NSApp.hide(nil)
+        let _ = shell(option.info ?? "")
     }
     
     return (.main, currSlide, "")
@@ -421,16 +423,19 @@ struct fileCreateView: View {
                         Text("Create")
                     }
                     .onTapGesture {
-                            if errorRetruned {
-                                FileManager.default.createFile(atPath: path + input, contents: nil)
-                                NSWorkspace.shared.open(URL(fileURLWithPath: path + input))
-                                currWinState = .main
-                                NSApp.hide(nil)
-                            } else {
-                                FileManager.default.createFile(atPath: path.dropLast() + input, contents: nil)
-                                NSWorkspace.shared.open(URL(fileURLWithPath: path.dropLast() + input))
-                                currWinState = .main
-                                NSApp.hide(nil)
+                            if !checkForCharacters(input: String(path)) {
+                                if errorRetruned {
+                                    FileManager.default.createFile(atPath: path + input, contents: nil)
+                                    NSWorkspace.shared.open(URL(fileURLWithPath: path + input))
+                                    currWinState = .main
+                                    NSApp.hide(nil)
+                                }
+                                else {
+                                    FileManager.default.createFile(atPath: path.dropLast() + input, contents: nil)
+                                    NSWorkspace.shared.open(URL(fileURLWithPath: path.dropLast() + input))
+                                    currWinState = .main
+                                    NSApp.hide(nil)
+                                }
                             }
                         }
                 }
@@ -511,23 +516,6 @@ struct getTextView: View {
                         let _ = shell("osascript -e 'set the clipboard to \"" + text.dropLast() + "\"'")
                         currWinState = .main
                     }
-                    /*GroupBox {
-                        VStack {
-                            Image(systemName: "square.and.arrow.down")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 20, height: 10)
-                                .padding(.all, 3.0)
-                            
-                            Text("Paste")
-                                .fontWeight(.bold)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(1)
-                                .padding([.leading, .bottom, .trailing], 1.0)
-                                .frame(width: 73)
-                                .font(/*@START_MENU_TOKEN@*/.callout/*@END_MENU_TOKEN@*/)
-                        }
-                    }*/
                 }
                 .padding(.top, -2)
                 .padding([.leading, .bottom, .trailing], 2)
@@ -766,6 +754,7 @@ struct mainSettingsView: View {
                 HStack {
                     TextField("Paste button saves code here", text: $importButtonsInput)
                         .padding(3)
+                    
                     GroupBox {
                         Text("Import buttons")
                     }
@@ -785,7 +774,7 @@ struct mainSettingsView: View {
 struct selectBtnView: View {
     @Binding var buttons: [button]
     
-    @State var selectedobjectNo: String = "-1"
+    @State var selectedObjectNo: String = "-1"
     @State var addNewMenu: Bool = false
     
     @State var selectedText: String = ""
@@ -833,7 +822,7 @@ struct selectBtnView: View {
                     }
                     buttons.append(button(no: customBtnNo, type: .custom, text: "Custom", image: "terminal", about: "Executes a custom command"))
                     buttonSlides[currSelectedSlide] = buttons
-                    selectedobjectNo = String(customBtnNo) + "5"
+                    selectedObjectNo = String(customBtnNo) + "5"
                     selectedText = "Custom"
                 }
                 .padding(.bottom, -4.0)
@@ -855,7 +844,7 @@ struct selectBtnView: View {
                     }
                     buttons.append(button(no: shortcutBtnNo, type: .shortcut, text: "Shortcut", image: "link", about: "Opens a set path"))
                     buttonSlides[currSelectedSlide] = buttons
-                    selectedobjectNo = String(shortcutBtnNo) + "4"
+                    selectedObjectNo = String(shortcutBtnNo) + "4"
                     selectedText = "New shortcut"
                 }
                 .padding(.bottom, -4.0)
@@ -869,13 +858,14 @@ struct selectBtnView: View {
                         .frame(width: 30, height: 15)
                 }
                 .onTapGesture {
-                    buttons.append(button(no: noOfSlides, type: .folder, text: "folder " + String(noOfSlides), image: "folder", about: nil))
+                    buttons.append(button(no: noOfSlides, type: .folder, text: "folder", image: "folder", about: nil))
                     buttonSlides[currSelectedSlide] = buttons
                     buttonSlides.append([])
                     print(noOfSlides)
                     print(currSelectedSlide)
-                    selectedobjectNo = String(noOfSlides) + "0"
+                    selectedObjectNo = String(noOfSlides) + "0"
                     noOfSlides += 1
+                    selectedText = "folder"
                 }
                 .padding(.bottom, -4.0)
                 .padding(.top, -1.0)
@@ -891,7 +881,7 @@ struct selectBtnView: View {
                     if buttons.firstIndex(where: {$0.no == 0}) == nil {
                         buttons.append(button(no: 0, type: .none, text: "", image: "", about: nil))
                         buttonSlides[currSelectedSlide] = buttons
-                        selectedobjectNo = "0-1"
+                        selectedObjectNo = "0-1"
                         selectedText = "None"
                     }
                 }
@@ -925,7 +915,7 @@ struct selectBtnView: View {
                                     }
                                 }
                             }
-                            .foregroundColor(selectedobjectNo == String(option.no) + String(option.type.rawValue) ? .accentColor : deleteButtonValue == String(option.no) + String(option.type.rawValue) ? Color(colorScheme == .dark ? .white : .black) : Color(colorScheme == .dark ? .lightGray : .darkGray))
+                            .foregroundColor(selectedObjectNo == String(option.no) + String(option.type.rawValue) ? .accentColor : deleteButtonValue == String(option.no) + String(option.type.rawValue) ? Color(colorScheme == .dark ? .white : .black) : Color(colorScheme == .dark ? .lightGray : .darkGray))
                             .onHover { hover in
                                 if hover {
                                     deleteButtonValue = String(option.no) + String(option.type.rawValue)
@@ -935,14 +925,14 @@ struct selectBtnView: View {
                                 }
                             }
                             .onTapGesture {
-                                if selectedobjectNo == String(option.no) + String(option.type.rawValue) {
-                                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                                if selectedObjectNo == String(option.no) + String(option.type.rawValue) {
+                                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
                                     buttons[currSelectedButton].text = selectedText
                                     buttonSlides[currSelectedSlide] = buttons
-                                    selectedobjectNo = "-1"
+                                    selectedObjectNo = "-1"
                                 }
                                 else {
-                                    selectedobjectNo = String(option.no) + String(option.type.rawValue)
+                                    selectedObjectNo = String(option.no) + String(option.type.rawValue)
                                     selectedText = option.text
                                 }
                             }
@@ -962,7 +952,7 @@ struct selectBtnView: View {
                                             .onTapGesture {
                                                 buttons.remove(at: buttons.firstIndex(where: { String(String($0.no) + String($0.type.rawValue))  ==  String(option.no) + String(option.type.rawValue) } )!)
                                                 buttonSlides[currSelectedSlide] = buttons
-                                                selectedobjectNo = "-1"
+                                                selectedObjectNo = "-1"
                                             }
                                     }
                                     Spacer()
@@ -982,20 +972,60 @@ struct selectBtnView: View {
             
             HStack {
                 HStack {
-                    if selectedobjectNo == "-1" {
+                    if selectedObjectNo == "-1" {
                         Text("Settings will be editable here once an object is selected.")
                     }
-                    else if selectedobjectNo.last == "0" {
-                        FolderSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
+                    else if selectedObjectNo.last == "0" {
+                        HStack {
+                            VStack {
+                                GroupBox {
+                                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
+                                    Image(systemName: buttons[currSelectedButton].image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 30, height: 30)
+                                        .padding(3)
+                                    
+                                    TextField("", text: $selectedText)
+                                        .font(.title)
+                                        .padding([.leading, .bottom, .trailing], 3.0)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    
+                                    GroupBox {
+                                        Text("Save name")
+                                    }
+                                    .onTapGesture {
+                                        if checkForCharacters(input: selectedText) { selectedText = "Folder" }
+                                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
+                                        buttons[currSelectedButton].text = selectedText
+                                        buttonSlides[currSelectedSlide] = buttons
+                                    }
+                                }
+                                
+                                GroupBox {
+                                    Text("Edit Items")
+                                }
+                                .onTapGesture {
+                                    var currSelectedSlideTransfer: String = selectedObjectNo
+                                    selectedObjectNo = "-1"
+                                    currSelectedSlideTransfer.removeLast()
+                                    currSelectedSlide = Int(currSelectedSlideTransfer)!
+                                    buttons = buttonSlides[currSelectedSlide]
+                                }
+                                Spacer()
+                            }
+                            .padding(.trailing, -3)
+                        }
+                        .padding(.horizontal, 7.0)
                     }
-                    else if selectedobjectNo.last == "4"  {
-                        ShortcutSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
+                    else if selectedObjectNo.last == "4"  {
+                        ShortcutSelectHelperView(buttons: $buttons, selectedObjectNo: $selectedObjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
                     }
-                    else if selectedobjectNo.last == "5"  {
-                        CustomSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
+                    else if selectedObjectNo.last == "5"  {
+                        CustomSelectHelperView(buttons: $buttons, selectedObjectNo: $selectedObjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
                     }
                     else {
-                        ButtonSelectHelperView(buttons: $buttons, selectedobjectNo: $selectedobjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
+                        ButtonSelectHelperView(buttons: $buttons, selectedObjectNo: $selectedObjectNo, selectedText: $selectedText, currSelectedSlide: $currSelectedSlide)
                     }
                 }
             }
@@ -1015,62 +1045,9 @@ struct selectBtnView: View {
 
 // MARK: - Setup Helper Views
 
-struct FolderSelectHelperView: View {
-    @Binding var buttons: [button]
-    @Binding var selectedobjectNo: String
-    @Binding var selectedText: String
-    @Binding var currSelectedSlide: Int
-    
-    var body: some View {
-        HStack {
-            VStack {
-                GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                    Image(systemName: buttons[currSelectedButton].image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 30, height: 30)
-                        .padding(3)
-                    
-                    TextField("", text: $selectedText)
-                        .font(.title)
-                        .padding([.leading, .bottom, .trailing], 3.0)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
-                    GroupBox {
-                        Text("Save name")
-                    }
-                    .onTapGesture {
-                        if checkForCharacters(input: selectedText) { selectedText = "Folder" }
-                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
-                        buttons[currSelectedButton].text = selectedText
-                        buttonSlides[currSelectedSlide] = buttons
-                    }
-                    
-                    Text("Press enter to save name")
-                        .padding(.bottom, 3.0)
-                }
-                GroupBox {
-                    Text("Edit Items")
-                }
-                .onTapGesture {
-                    var currSelectedSlideTransfer: String = selectedobjectNo
-                    currSelectedSlideTransfer.removeLast()
-                    currSelectedSlide = Int(currSelectedSlideTransfer)!
-                    selectedobjectNo = "-1"
-                    buttons = buttonSlides[currSelectedSlide]
-                }
-                Spacer()
-            }
-            .padding(.trailing, -3)
-        }
-        .padding(.horizontal, 7.0)
-    }
-}
-
 struct ButtonSelectHelperView: View {
     @Binding var buttons: [button]
-    @Binding var selectedobjectNo: String
+    @Binding var selectedObjectNo: String
     @Binding var selectedText: String
     @Binding var currSelectedSlide: Int
     
@@ -1081,7 +1058,7 @@ struct ButtonSelectHelperView: View {
                     HStack {
                         Spacer()
                         VStack {
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                             Image(systemName: buttons[currSelectedButton].image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
@@ -1096,7 +1073,7 @@ struct ButtonSelectHelperView: View {
                 }
                 
                 GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                     HStack {
                         Text("Info")
                             .font(.title)
@@ -1131,10 +1108,10 @@ struct ButtonSelectHelperView: View {
                                 }
                             }
                             .onTapGesture {
-                                print(selectedobjectNo)
-                                buttons[buttons.firstIndex(where: { String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo }) ?? 0] = allButtons[allButtons.firstIndex(where: { String(String($0.no) + String($0.type.rawValue)) == String(String(button.no) + String(button.type.rawValue)) })!]
+                                print(selectedObjectNo)
+                                buttons[buttons.firstIndex(where: { String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo }) ?? 0] = allButtons[allButtons.firstIndex(where: { String(String($0.no) + String($0.type.rawValue)) == String(String(button.no) + String(button.type.rawValue)) })!]
                                 buttonSlides[currSelectedSlide] = buttons
-                                selectedobjectNo = String(button.no) + String(button.type.rawValue)
+                                selectedObjectNo = String(button.no) + String(button.type.rawValue)
                                 selectedText = button.text
                             }
                             Divider()
@@ -1150,7 +1127,7 @@ struct ButtonSelectHelperView: View {
 
 struct ShortcutSelectHelperView: View {
     @Binding var buttons: [button]
-    @Binding var selectedobjectNo: String
+    @Binding var selectedObjectNo: String
     @Binding var selectedText: String
     @Binding var currSelectedSlide: Int
     
@@ -1158,7 +1135,7 @@ struct ShortcutSelectHelperView: View {
         HStack {
             VStack {
                 GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                     Image(systemName: buttons[currSelectedButton].image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -1174,14 +1151,14 @@ struct ShortcutSelectHelperView: View {
                     }
                     .onTapGesture {
                         if checkForCharacters(input: selectedText) { selectedText = "Shortcut" }
-                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
                         buttons[currSelectedButton].text = selectedText
                         buttonSlides[currSelectedSlide] = buttons
                     }
                 }
                 
                 GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                     HStack {
                         Text("Info")
                             .font(.title)
@@ -1217,7 +1194,7 @@ struct ShortcutSelectHelperView: View {
                 if let loadableProvider = providers.first(where: { $0.canLoadObject(ofClass: URL.self) }) {
                     _ = loadableProvider.loadObject(ofClass: URL.self) { fileURL, _ in
                         if !checkForCharacters(input: fileURL!.path) {
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                             
                             let splitPath = String(fileURL!.path).split(separator: "/")
                             
@@ -1240,7 +1217,7 @@ struct ShortcutSelectHelperView: View {
 
 struct CustomSelectHelperView: View {
     @Binding var buttons: [button]
-    @Binding var selectedobjectNo: String
+    @Binding var selectedObjectNo: String
     @Binding var selectedText: String
     @Binding var currSelectedSlide: Int
     
@@ -1250,7 +1227,7 @@ struct CustomSelectHelperView: View {
         HStack {
             VStack {
                 GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                     Image(systemName: buttons[currSelectedButton].image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -1266,14 +1243,14 @@ struct CustomSelectHelperView: View {
                     }
                     .onTapGesture {
                         if checkForCharacters(input: selectedText) { selectedText = "Custom" }
-                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
                         buttons[currSelectedButton].text = selectedText
                         buttonSlides[currSelectedSlide] = buttons
                     }
                 }
                 
                 GroupBox {
-                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo} ) ?? 0
+                    let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo} ) ?? 0
                     HStack {
                         Text("Info")
                             .font(.title)
@@ -1307,7 +1284,7 @@ struct CustomSelectHelperView: View {
                         }
                         .onTapGesture {
                             if checkForCharacters(input: customCommand) { customCommand = "_" }
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedobjectNo}) ?? 0
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
                             buttons[currSelectedButton].info = customCommand
                             buttonSlides[currSelectedSlide] = buttons
                         }
@@ -1356,3 +1333,4 @@ struct ContentView_Previews: PreviewProvider {
         previewView()
     }
 }*/
+

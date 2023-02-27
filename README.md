@@ -2,7 +2,9 @@
 QolPoint - A quality of life mac app
 -----------
 
-QolPoint is an app that lets you execute terminal commands and open files from a simple GUI, accesible through a keyboard shortcut. It comes with many useful commands built-in, like letting you create **any kind of file in Finder**, **Showing you your current Wifi password** or **ejecting all disks**. You cam also add your own commands, and can sort all of these into folders.
+QolPoint is an app that lets you execute terminal commands and open files from a simple GUI, accesible through a keyboard shortcut. It comes with many useful commands built-in, like letting you create **any kind of file in Finder**, **showing you your current wifi password** or **ejecting all disks**. You cam also add your own commands, and can sort all of these into folders.
+
+These commands can be run by clicking on their assigned button, or through a keyboard shortcut.
 
 ***DEFAULT KEYBOARD SHORTCUT: CMD+E***
 
@@ -14,7 +16,7 @@ The main part of the app is a dock-like GUI that contains the buttons that you s
 
 ***--- Main Settings ---***
 	
-Set keybind for showing/hiding app in:
+Set the keybind for showing/hiding app in:
 
 	Main Settings > Main Shortcut
 
@@ -22,10 +24,19 @@ and press the keybind you would like to bind it to.
 
 Reset all buttons and saves through:
 
-	Main Settings > Reset Buttons > Confirm Reset
+	Main Settings > Reset buttons > Confirm reset
 	
-![SCR-20230131-qsz](https://user-images.githubusercontent.com/121255421/215840842-13f88dfb-f4c1-4dce-900c-9d71e830dae1.png)
+Export button saves (copies them to clipboard):
 
+	Main Settings > Copy button saves
+
+Import button saves:
+
+	Main Settings > (paste saves into textbox) > Import buttons
+
+You need to go back to the main menu for changes to take effect.
+
+![SCR-20230227-iqb](https://user-images.githubusercontent.com/121255421/221555185-6f951457-1993-448c-bde7-7e3690a25ecb.png)
 
 ***--- Button Settings ---***
 
@@ -65,7 +76,7 @@ You can delete buttons by hovering over them and clicking the X icon.
 
 **Change the name** by entering it in the textbox and pressing enter.
 
-**Assign files to them** by dragging and dropting them onto the area on the right.
+**Assign files to them** by dragging and dropping them onto the area on the right.
 
 ![SCR-20230131-qud](https://user-images.githubusercontent.com/121255421/215845962-a132840e-be29-45f0-bb43-fe6c7c2f4fa8.png)
 
@@ -80,4 +91,4 @@ You can delete buttons by hovering over them and clicking the X icon.
 ***---- Credits ----***
 
 Windowposition.swift > https://gist.github.com/ABridoux/b935c21c7ead92033d39b357fae6366b
-KeyboardShortcuts > https://github.com/sindresorhus/keyboardshortcut
+KeyboardShortcuts > https://github.com/sindresorhus/keyboardshortcuts

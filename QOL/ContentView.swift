@@ -602,7 +602,9 @@ struct setupView: View {
                                         }
                                         buttonsSave += ",,,"
                                     }
-                                    buttonsSave += ":::"
+                                    if array != [] {
+                                        buttonsSave += ":::"
+                                    }
                                 }
                                 
                                 print(buttonsSave)

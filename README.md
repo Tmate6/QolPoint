@@ -24,10 +24,19 @@ and press the keybind you would like to bind it to.
 
 Reset all buttons and saves through:
 
-	Main Settings > Reset Buttons > Confirm Reset
+	Main Settings > Reset buttons > Confirm reset
 	
-![SCR-20230131-qsz](https://user-images.githubusercontent.com/121255421/215840842-13f88dfb-f4c1-4dce-900c-9d71e830dae1.png)
+Export button saves (copies them to clipboard):
 
+	Main Settings > Copy button saves
+
+Import button saves:
+
+	Main Settings > (paste saves into textbox) > Import buttons
+
+You need to go back to the main menu for changes to take effect.
+
+![SCR-20230227-iqb](https://user-images.githubusercontent.com/121255421/221555185-6f951457-1993-448c-bde7-7e3690a25ecb.png)
 
 ***--- Button Settings ---***
 

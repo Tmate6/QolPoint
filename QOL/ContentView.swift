@@ -724,6 +724,7 @@ struct mainSettingsView: View {
     @State var currWinState: windowState = .main
     
     @State var copiedToClipboard = false
+    @State var buttonsImported = false
     
     @State var importButtonsInput: String = ""
     
@@ -770,11 +771,15 @@ struct mainSettingsView: View {
                     TextField("Paste button saves code here", text: $importButtonsInput)
                         .padding(3)
                     GroupBox {
-                        Text("Import buttons")
+                        Text(buttonsImported ? "Buttons imported" : "Import buttons")
                     }
                         .padding(3)
                         .onTapGesture {
-                            print(importButtonsInput)
+                            let defaults = UserDefaults.standard
+                            defaults.set(importButtonsInput, forKey: "defaultButtons")
+                            UserDefaults.standard.synchronize()
+                            buttonSlides = loadBtns()
+                            buttonsImported = true
                         }
                 }
                 .padding(.horizontal)

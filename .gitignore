@@ -25,5 +25,5 @@ Carthage/Build/
 Dependencies/
 .accio/
 
-
+*.xcuserstate
 .DS_Store

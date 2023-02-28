@@ -177,6 +177,10 @@ struct QolApp: App {
                 }
                     .keyboardShortcut("9")
                 
+                Button("Back") {
+                    buttons = buttonSlides[0]
+                }
+                .keyboardShortcut("0")
             }
         }
     }

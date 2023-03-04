@@ -88,7 +88,7 @@ You can delete buttons by hovering over them and clicking the X icon.
 
 ![SCR-20230131-qwa](https://user-images.githubusercontent.com/121255421/215846188-10b83f9a-4647-4ec8-bbc9-ef6fc322147d.png)
 
-## Credits ----***
+## Credits
 
 Windowposition.swift > https://gist.github.com/ABridoux/b935c21c7ead92033d39b357fae6366b
 KeyboardShortcuts > https://github.com/sindresorhus/keyboardshortcuts

@@ -295,6 +295,7 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
 }
 
 struct mainView: View {
+    @State private var textOpacities: [button: Double] = [:]
     
     @Binding var currWinState: windowState
     
@@ -321,7 +322,6 @@ struct mainView: View {
                                     .padding([.leading, .bottom, .trailing], 1.0)
                                     .frame(width: 50)
                                     .font(/*@START_MENU_TOKEN@*/.callout/*@END_MENU_TOKEN@*/)
-                                
                             }
                         }
                     }
@@ -335,7 +335,29 @@ struct mainView: View {
                         VStack {
                             Spacer()
                             GroupBox {
-                                HStack {
+                                ZStack {
+                                    HStack {
+                                        Spacer()
+                                        VStack {
+                                            Text(String(buttons.firstIndex(where: { $0.no == option.no && $0.type == option.type })! + 1))
+                                                .padding(1)
+                                                .padding(.trailing, 2)
+                                                .opacity(textOpacities[option] ?? 1)
+                                                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+                                                    self.textOpacities[option] = 1.0
+                                                    withAnimation(.easeOut(duration: 1)) {
+                                                        self.textOpacities[option] = 0.0
+                                                    }
+                                                }
+                                                .onAppear {
+                                                    self.textOpacities[option] = 1.0
+                                                    withAnimation(.easeOut(duration: 1)) {
+                                                        self.textOpacities[option] = 0.0
+                                                    }
+                                                }
+                                            Spacer()
+                                        }
+                                    }
                                     VStack {
                                         Image(systemName: option.image)
                                             .resizable()
@@ -350,6 +372,15 @@ struct mainView: View {
                                             .frame(width: 73)
                                             .font(/*@START_MENU_TOKEN@*/.callout/*@END_MENU_TOKEN@*/)
                                         
+                                    }
+                                }
+                            }
+                            .onHover { over in
+                                if over {
+                                    self.textOpacities[option] = 1.0
+                                } else {
+                                    withAnimation(.easeOut(duration: 1)) {
+                                        self.textOpacities[option] = 0.0
                                     }
                                 }
                             }

@@ -125,9 +125,6 @@ func commandAction(id: Int) {
 
 func loadBtns() -> [[button]] {
     noOfSlides = 0
-    
-    UserDefaults.standard.register(defaults: ["defaultButtons" : "13:::"])
-    
     var buttonReturn: [[button]] = [[]]
     print(UserDefaults.standard.string(forKey: "defaultButtons")!)
     
@@ -295,11 +292,14 @@ func buttonHandler(option: button, currSlide: [button]) -> (windowState, [button
 }
 
 struct mainView: View {
+    @State private var textOpacities: [button: Double] = [:]
     
     @Binding var currWinState: windowState
     
     @Binding var buttons: [button]
     @Binding var displayString: String
+    
+    @State private var fadeTime: Double = UserDefaults.standard.double(forKey: "fadeTime")
     
     var body: some View {
         HSplitView {
@@ -321,7 +321,6 @@ struct mainView: View {
                                     .padding([.leading, .bottom, .trailing], 1.0)
                                     .frame(width: 50)
                                     .font(/*@START_MENU_TOKEN@*/.callout/*@END_MENU_TOKEN@*/)
-                                
                             }
                         }
                     }
@@ -335,7 +334,29 @@ struct mainView: View {
                         VStack {
                             Spacer()
                             GroupBox {
-                                HStack {
+                                ZStack {
+                                    HStack {
+                                        Spacer()
+                                        VStack {
+                                            Text(String(buttons.firstIndex(where: { $0.no == option.no && $0.type == option.type })! + 1))
+                                                .padding(1)
+                                                .padding(.trailing, 2)
+                                                .opacity(textOpacities[option] ?? 1)
+                                                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+                                                    self.textOpacities[option] = 1.0
+                                                    withAnimation(.easeOut(duration: fadeTime)) {
+                                                        self.textOpacities[option] = 0.0
+                                                    }
+                                                }
+                                                .onAppear {
+                                                    self.textOpacities[option] = 1.0
+                                                    withAnimation(.easeOut(duration: fadeTime)) {
+                                                        self.textOpacities[option] = 0.0
+                                                    }
+                                                }
+                                            Spacer()
+                                        }
+                                    }
                                     VStack {
                                         Image(systemName: option.image)
                                             .resizable()
@@ -350,6 +371,15 @@ struct mainView: View {
                                             .frame(width: 73)
                                             .font(/*@START_MENU_TOKEN@*/.callout/*@END_MENU_TOKEN@*/)
                                         
+                                    }
+                                }
+                            }
+                            .onHover { over in
+                                if over {
+                                    self.textOpacities[option] = 1.0
+                                } else {
+                                    withAnimation(.easeOut(duration: fadeTime)) {
+                                        self.textOpacities[option] = 0.0
                                     }
                                 }
                             }
@@ -418,7 +448,6 @@ struct fileCreateView: View {
                     
                     TextField(String(path), text: $input)
                         .padding(.trailing, 1.0)
-                    
                     GroupBox {
                         Text("Create")
                     }
@@ -714,7 +743,9 @@ struct mainSettingsView: View {
     @State var buttonsImported = false
     
     @State var importButtonsInput: String = ""
+    @State private var fadeTime: String = String(round(UserDefaults.standard.double(forKey: "fadeTime")*10)/10)
     
+    let allowedCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
     var body: some View {
         VStack {
             Text("Main Shortcut")
@@ -757,7 +788,6 @@ struct mainSettingsView: View {
                 HStack {
                     TextField("Paste button saves code here", text: $importButtonsInput)
                         .padding(3)
-                    
                     GroupBox {
                         Text(buttonsImported ? "Buttons imported" : "Import buttons")
                     }
@@ -771,6 +801,30 @@ struct mainSettingsView: View {
                         }
                 }
                 .padding(.horizontal)
+            }
+            Divider()
+            HStack {
+                Spacer()
+                Text("Keybind fade duration")
+                
+                TextField("Seconds", text: $fadeTime)
+                                .textFieldStyle(.roundedBorder)
+                                .onChange(of: fadeTime) { newValue in
+                                    let filtered = newValue.filter { allowedCharacters.contains($0.unicodeScalars.first!) }
+                                    if filtered != newValue {
+                                        self.fadeTime = filtered
+                                    }
+                                }
+                
+                GroupBox {
+                    Text("Confirm")
+                }
+                .onTapGesture {
+                    UserDefaults.standard.set(round((Float(fadeTime) ?? 1.0)*10)/10, forKey: "fadeTime")
+                    UserDefaults.standard.synchronize()
+                }
+                
+                Spacer()
             }
             Divider()
             Spacer()
@@ -997,7 +1051,6 @@ struct selectBtnView: View {
                                         .font(.title)
                                         .padding([.leading, .bottom, .trailing], 3.0)
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    
                                     GroupBox {
                                         Text("Save name")
                                     }
@@ -1152,7 +1205,6 @@ struct ShortcutSelectHelperView: View {
                         .font(.title)
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
                     GroupBox {
                         Text("Save name")
                     }
@@ -1244,7 +1296,6 @@ struct CustomSelectHelperView: View {
                         .font(.title)
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
                     GroupBox {
                         Text("Save name")
                     }
@@ -1340,4 +1391,3 @@ struct ContentView_Previews: PreviewProvider {
         previewView()
     }
 }*/
-

@@ -33,6 +33,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        UserDefaults.standard.register(defaults: ["defaultButtons" : "13:::"])
+        UserDefaults.standard.register(defaults: ["fadeTime" : 1.0])
         let window = NSApplication.shared.windows.first!
         window.titlebarAppearsTransparent = true
         window.backgroundColor = .white
@@ -112,69 +114,74 @@ struct QolApp: App {
                     .keyboardShortcut(",")
             }
             CommandMenu("Buttons") {
-                Button("Button 1") {
+                Button("Back") {
                     if windowContent == .main {
+                        buttons = buttonSlides[0]
+                    }
+                }
+                    .keyboardShortcut("0", modifiers: [])
+                Button("Button 1") {
+                    if windowContent == .main && buttons.indices.contains(0) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[0], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("1")
+                    .keyboardShortcut("1", modifiers: [])
                 
                 Button("Button 2") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(1) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[1], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("2")
+                    .keyboardShortcut("2", modifiers: [])
                 
                 Button("Button 3") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(2) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[2], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("3")
+                    .keyboardShortcut("3", modifiers: [])
                 
                 Button("Button 4") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(3) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[3], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("4")
+                    .keyboardShortcut("4", modifiers: [])
                 
                 Button("Button 5") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(4) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[4], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("5")
+                    .keyboardShortcut("5", modifiers: [])
                 
                 Button("Button 6") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(5) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[5], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("6")
+                    .keyboardShortcut("6", modifiers: [])
                 
                 Button("Button 7") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(6) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[6], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("7")
+                    .keyboardShortcut("7", modifiers: [])
                 
                 Button("Button 8") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(7) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[7], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("8")
+                    .keyboardShortcut("8", modifiers: [])
                 
                 Button("Button 9") {
-                    if windowContent == .main {
+                    if windowContent == .main && buttons.indices.contains(8) {
                         (windowContent, buttons, displayString) = buttonHandler(option: buttons[8], currSlide: buttons)
                     }
                 }
-                    .keyboardShortcut("9")
-                
+                    .keyboardShortcut("9", modifiers: [])
             }
         }
     }

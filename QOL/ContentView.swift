@@ -814,11 +814,16 @@ struct mainSettingsView: View {
                                     if filtered != newValue {
                                         self.fadeTime = filtered
                                     }
-                                }/*
-                                .onSubmit {
-                                    UserDefaults.standard.set(round((Float(fadeTime) ?? 1.0)*10)/10, forKey: "fadeTime")
-                                    UserDefaults.standard.synchronize()
-                                }*/
+                                }
+                
+                GroupBox {
+                    Text("Confirm")
+                }
+                .onTapGesture {
+                    UserDefaults.standard.set(round((Float(fadeTime) ?? 1.0)*10)/10, forKey: "fadeTime")
+                    UserDefaults.standard.synchronize()
+                }
+                
                 Spacer()
             }
             Divider()

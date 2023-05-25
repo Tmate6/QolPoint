@@ -453,7 +453,10 @@ struct fileCreateView: View {
                     
                     TextField(String(path), text: $input)
                         .padding(.trailing, 1.0)
-                        .onSubmit {
+                    GroupBox {
+                        Text("Create")
+                    }
+                    .onTapGesture {
                             if !checkForCharacters(input: String(path)) {
                                 if errorRetruned {
                                     FileManager.default.createFile(atPath: path + input, contents: nil)
@@ -716,7 +719,7 @@ struct setupView: View {
                             selectBtnView(buttons: $buttons, currSelectedSlide: buttonSlides.firstIndex(of: buttons)!)
                         }
                     }
-                    .background(BackgroundStyle())
+                    .background(VisualEffect().ignoresSafeArea())
                 }
             }
         }
@@ -745,7 +748,6 @@ struct mainSettingsView: View {
     @State var buttonsImported = false
     
     @State var importButtonsInput: String = ""
-    
     @State private var fadeTime: String = String(round(UserDefaults.standard.double(forKey: "fadeTime")*10)/10)
     let allowedCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
     
@@ -761,7 +763,7 @@ struct mainSettingsView: View {
             HStack {
                 KeyboardShortcuts.Recorder("", name: .toggleShortcut)
                     .controlSize(/*@START_MENU_TOKEN@*/.large/*@END_MENU_TOKEN@*/)
-                    .background(BackgroundStyle())
+                    .background(VisualEffect().ignoresSafeArea())
             }
             Divider()
             VStack {
@@ -820,10 +822,15 @@ struct mainSettingsView: View {
                                         self.fadeTime = filtered
                                     }
                                 }
-                                .onSubmit {
-                                    UserDefaults.standard.set(round((Float(fadeTime) ?? 1.0)*10)/10, forKey: "fadeTime")
-                                    UserDefaults.standard.synchronize()
-                                }
+                
+                GroupBox {
+                    Text("Confirm")
+                }
+                .onTapGesture {
+                    UserDefaults.standard.set(round((Float(fadeTime) ?? 1.0)*10)/10, forKey: "fadeTime")
+                    UserDefaults.standard.synchronize()
+                }
+                
                 Spacer()
             }
             Divider()
@@ -1060,15 +1067,17 @@ struct selectBtnView: View {
                                         .font(.title)
                                         .padding([.leading, .bottom, .trailing], 3.0)
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                                        .onSubmit {
-                                            if checkForCharacters(input: selectedText) { selectedText = "Folder" }
-                                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
-                                            buttons[currSelectedButton].text = selectedText
-                                            buttonSlides[currSelectedSlide] = buttons
-                                        }
-                                    Text("Press enter to save name")
-                                        .padding(.bottom, 3.0)
+                                    GroupBox {
+                                        Text("Save name")
+                                    }
+                                    .onTapGesture {
+                                        if checkForCharacters(input: selectedText) { selectedText = "Folder" }
+                                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
+                                        buttons[currSelectedButton].text = selectedText
+                                        buttonSlides[currSelectedSlide] = buttons
+                                    }
                                 }
+                                
                                 GroupBox {
                                     Text("Edit Items")
                                 }
@@ -1212,14 +1221,15 @@ struct ShortcutSelectHelperView: View {
                         .font(.title)
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .onSubmit {
-                            if checkForCharacters(input: selectedText) { selectedText = "Shortcut" }
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
-                            buttons[currSelectedButton].text = selectedText
-                            buttonSlides[currSelectedSlide] = buttons
-                        }
-                    Text("Press enter to save name")
-                        .padding(.bottom, 3.0)
+                    GroupBox {
+                        Text("Save name")
+                    }
+                    .onTapGesture {
+                        if checkForCharacters(input: selectedText) { selectedText = "Shortcut" }
+                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
+                        buttons[currSelectedButton].text = selectedText
+                        buttonSlides[currSelectedSlide] = buttons
+                    }
                 }
                 
                 GroupBox {
@@ -1302,14 +1312,15 @@ struct CustomSelectHelperView: View {
                         .font(.title)
                         .padding([.leading, .bottom, .trailing], 3.0)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .onSubmit {
-                            if checkForCharacters(input: selectedText) { selectedText = "Custom" }
-                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
-                            buttons[currSelectedButton].text = selectedText
-                            buttonSlides[currSelectedSlide] = buttons
-                        }
-                    Text("Press enter to save name")
-                        .padding(.bottom, 3.0)
+                    GroupBox {
+                        Text("Save name")
+                    }
+                    .onTapGesture {
+                        if checkForCharacters(input: selectedText) { selectedText = "Custom" }
+                        let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
+                        buttons[currSelectedButton].text = selectedText
+                        buttonSlides[currSelectedSlide] = buttons
+                    }
                 }
                 
                 GroupBox {
@@ -1338,16 +1349,19 @@ struct CustomSelectHelperView: View {
                     Spacer()
                     VStack {
                         Spacer()
-                        TextField("", text: $customCommand, axis: .vertical)
-                            .lineLimit(16...16)
+                        TextField("", text: $customCommand)
                             .padding([.leading, .bottom, .trailing], 3.0)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .onSubmit {
-                                if checkForCharacters(input: customCommand) { customCommand = "_" }
-                                let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
-                                buttons[currSelectedButton].info = customCommand
-                                buttonSlides[currSelectedSlide] = buttons
-                            }
+                        
+                        GroupBox {
+                            Text("Save command")
+                        }
+                        .onTapGesture {
+                            if checkForCharacters(input: customCommand) { customCommand = "_" }
+                            let currSelectedButton: Int = buttons.firstIndex(where: {String(String($0.no) + String($0.type.rawValue)) == selectedObjectNo}) ?? 0
+                            buttons[currSelectedButton].info = customCommand
+                            buttonSlides[currSelectedSlide] = buttons
+                        }
                         Spacer()
                     }
                     Spacer()

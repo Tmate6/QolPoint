@@ -35,6 +35,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         UserDefaults.standard.register(defaults: ["defaultButtons" : "13:::"])
         UserDefaults.standard.register(defaults: ["fadeTime" : 1.0])
+        UserDefaults.standard.register(defaults: ["returnToMainView" : true])
+        
         let window = NSApplication.shared.windows.first!
         window.titlebarAppearsTransparent = true
         window.backgroundColor = .white

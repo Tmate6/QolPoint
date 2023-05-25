@@ -181,52 +181,58 @@ func changeSlide(slide: Int, changeTo: [button]) {
 
 struct ContentView: View {
     @Binding var currWinState: windowState
-    
     @Binding var buttons: [button]
-    
     @Binding var displayString: String
     
     var body: some View {
-        switch currWinState {
-        case .main:
-            withAnimation {
-                mainView(currWinState: $currWinState, buttons: $buttons, displayString: $displayString)
-                    .navigationTitle("QolPoint")
-                    .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
-                        NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
-                    })
+        HStack {
+            switch currWinState {
+            case .main:
+                withAnimation {
+                    mainView(currWinState: $currWinState, buttons: $buttons, displayString: $displayString)
+                        .navigationTitle("QolPoint")
+                        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
+                            NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
+                        })
+                }
+            case .fileCreate:
+                withAnimation {
+                    fileCreateView(currWinState: $currWinState)
+                        .navigationTitle("QolPoint")
+                        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
+                            NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
+                        })
+                }
+            case .setup:
+                withAnimation {
+                    setupView(currWinState: $currWinState, buttons: $buttons)
+                        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
+                            NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
+                        })
+                    /*setupViewPreview()
+                     .edgesIgnoringSafeArea(.vertical)*/
+                }
+            case .getText:
+                withAnimation {
+                    getTextView(currWinState: $currWinState, text: displayString)
+                        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
+                            NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
+                            NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
+                        })
+                }
             }
-        case .fileCreate:
-            withAnimation {
-                fileCreateView(currWinState: $currWinState)
-                    .navigationTitle("QolPoint")
-                    .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
-                        NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
-                    })
-            }
-        case .setup:
-            withAnimation {
-                setupView(currWinState: $currWinState, buttons: $buttons)
-                    .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
-                        NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
-                    })
-                /*setupViewPreview()
-                    .edgesIgnoringSafeArea(.vertical)*/
-            }
-        case .getText:
-            withAnimation {
-                getTextView(currWinState: $currWinState, text: displayString)
-                    .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification), perform: { _ in
-                        NSApp.mainWindow?.standardWindowButton(.zoomButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.closeButton)?.isHidden = true
-                        NSApp.mainWindow?.standardWindowButton(.miniaturizeButton)?.isHidden = true
-                    })
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didHideNotification)) { _ in
+            if UserDefaults.standard.bool(forKey: "returnToMainView") {
+                currWinState = .main
+                buttons = buttonSlides[0]
             }
         }
     }
@@ -417,7 +423,6 @@ struct fileCreateView: View {
     }
     
     @State var input = ""
-    
     
     @State var backImage: String = "arrowtriangle.backward"
     
@@ -744,8 +749,10 @@ struct mainSettingsView: View {
     
     @State var importButtonsInput: String = ""
     @State private var fadeTime: String = String(round(UserDefaults.standard.double(forKey: "fadeTime")*10)/10)
-    
     let allowedCharacters = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
+    
+    @State private var returnToMainView = UserDefaults.standard.bool(forKey: "returnToMainView")
+    
     var body: some View {
         VStack {
             Text("Main Shortcut")
@@ -827,6 +834,15 @@ struct mainSettingsView: View {
                 Spacer()
             }
             Divider()
+            HStack {
+                Spacer()
+                Toggle("Return to main slide when shown", isOn: $returnToMainView)
+                    .onChange(of: returnToMainView) { _ in
+                        UserDefaults.standard.set(returnToMainView, forKey: "returnToMainView")
+                        UserDefaults.standard.synchronize()
+                    }
+                Spacer()
+            }
             Spacer()
         }
     }
